@@ -15,4 +15,7 @@ The objective here is to maximize the rewards over some time period.
 These are methods used to calculate the estimates Q<sub>a</sub>(t) for our action at time t.
 One natural way to do that is to average the rewards actually received (sample average).
 
-Q<sub>a</sub>(t) = $$\left( \sum_{i=1}^t=1 R<sub>i</sub> * 1<sub>A</sub><sub>i</sub>=a \right)^2
+$$
+Q_t(a) = \frac{\sum_{i=1}^{t-1} R_i \cdot \mathbb{1}_{A_i = a}}
+{\sum_{i=1}^{t-1} \mathbb{1}_{A_i = a}}
+$$
