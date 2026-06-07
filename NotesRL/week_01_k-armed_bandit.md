@@ -22,7 +22,9 @@ $$
 
 which means:
 
-$$
-Q_t(a) = \frac{total reward received from action a before time t​}
-{total reward received from action a before time t}
-$$
+Q_t(a) =
+\frac{
+\text{total reward received from action } a \text{ before time } t
+}{
+\text{number of times action } a \text{ was selected before time } t
+}
