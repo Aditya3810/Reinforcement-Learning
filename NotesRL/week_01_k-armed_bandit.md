@@ -173,7 +173,6 @@ $$
 
 ## Argmax in action selection
 
-Yes — but with one small correction:
 
 $$
 \arg\max_a Q_t(a)
