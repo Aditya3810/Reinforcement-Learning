@@ -1393,7 +1393,7 @@ Constant step size helps the agent adapt to change.
 Optimistic initial values help the agent explore early.
 
 
-## 42. Upper-Confidence-Bound Action Selection
+## 39. Upper-Confidence-Bound Action Selection
 
 Upper-Confidence-Bound action selection is another way to handle the exploration problem.
 
@@ -1417,7 +1417,7 @@ Which action has the best combination of high estimated value and high uncertain
 
 ---
 
-## 43. Main Idea Behind UCB
+## 40. Main Idea Behind UCB
 
 UCB chooses actions based on two things:
 
@@ -1440,7 +1440,7 @@ The agent chooses actions that either look good already, or have not been explor
 
 ---
 
-## 44. UCB Formula
+## 41. UCB Formula
 
 The UCB action selection formula is:
 
@@ -1480,7 +1480,7 @@ $$
 
 ---
 
-## 45. Meaning of \(Q_t(a)\)
+## 42. Meaning of \(Q_t(a)\)
 
 The term:
 
@@ -1500,7 +1500,7 @@ Exploitation means choosing actions that already seem good.
 
 ---
 
-## 46. Meaning of the Uncertainty Bonus
+## 43. Meaning of the Uncertainty Bonus
 
 The term:
 
@@ -1524,7 +1524,7 @@ So UCB gives that action a smaller bonus.
 
 ---
 
-## 47. Meaning of \(t\)
+## 44. Meaning of \(t\)
 
 The term:
 
@@ -1554,7 +1554,7 @@ This means that as time passes, the algorithm maintains some pressure to explore
 
 ---
 
-## 48. Meaning of \(N_t(a)\)
+## 45. Meaning of \(N_t(a)\)
 
 The term:
 
@@ -1588,7 +1588,7 @@ This encourages the agent to try actions it has not explored much.
 
 ---
 
-## 49. Meaning of \(c\)
+## 46. Meaning of \(c\)
 
 The term:
 
@@ -1616,7 +1616,7 @@ So the agent behaves more greedily.
 
 ---
 
-## 50. Simple UCB Example
+## 47. Simple UCB Example
 
 Suppose there are 3 actions at time:
 
@@ -1660,7 +1660,7 @@ This is because action B still has potential to be optimal.
 
 ---
 
-## 51. What Happens When an Action Is Selected?
+## 48. What Happens When an Action Is Selected?
 
 Suppose action \(a\) is selected.
 
@@ -1688,7 +1688,7 @@ The more I try an action, the less curious I am about it.
 
 ---
 
-## 52. What Happens When an Action Is Not Selected?
+## 49. What Happens When an Action Is Not Selected?
 
 If an action is not selected, then \(N_t(a)\) does not increase.
 
@@ -1712,7 +1712,7 @@ If I have ignored an action for a long time, maybe I should check it again.
 
 ---
 
-## 53. UCB Intuition
+## 50. UCB Intuition
 
 UCB is like saying:
 
@@ -1726,7 +1726,7 @@ This makes exploration more directed.
 
 ---
 
-## 54. Gradient Bandit Algorithms
+## 51. Gradient Bandit Algorithms
 
 Gradient bandit algorithms are another way to select actions.
 
@@ -1752,7 +1752,7 @@ $$
 
 ---
 
-## 55. What Is \(H_t(a)\)?
+## 52. What Is \(H_t(a)\)?
 
 The term:
 
@@ -1786,7 +1786,7 @@ So \(H_t(a)\) is not the same as \(Q_t(a)\).
 
 ---
 
-## 56. Action Selection Using Softmax
+## 53. Action Selection Using Softmax
 
 Gradient bandit algorithms convert action preferences into probabilities.
 
@@ -1811,7 +1811,7 @@ This naturally allows exploration.
 
 ---
 
-## 57. Simple Softmax Example
+## 54. Simple Softmax Example
 
 Suppose there are 3 actions:
 
@@ -1833,7 +1833,7 @@ So it gives a natural balance between exploration and exploitation.
 
 ---
 
-## 58. Updating Action Preferences
+## 55. Updating Action Preferences
 
 After selecting action \(A_t\) and receiving reward \(R_t\), the preference of the selected action is updated.
 
@@ -1867,7 +1867,7 @@ The non-selected action update usually has a minus sign.
 
 ---
 
-## 59. Meaning of \(\bar{R}_t\)
+## 56. Meaning of \(\bar{R}_t\)
 
 The term:
 
@@ -1915,7 +1915,7 @@ Was this reward better than what I usually get?
 
 ---
 
-## 60. Why Use a Baseline?
+## 57. Why Use a Baseline?
 
 Suppose the agent receives reward:
 
@@ -1963,7 +1963,7 @@ This is why the baseline matters.
 
 ---
 
-## 61. Example: Reward Above Baseline
+## 58. Example: Reward Above Baseline
 
 Suppose action A was selected.
 
@@ -2001,7 +2001,7 @@ That action gave me a better-than-usual reward, so I should choose it more often
 
 ---
 
-## 62. Example: Reward Below Baseline
+## 59. Example: Reward Below Baseline
 
 Suppose action A was selected.
 
@@ -2039,7 +2039,7 @@ That action gave me a worse-than-usual reward, so I should choose it less often.
 
 ---
 
-## 63. Why Do Non-Selected Actions Change?
+## 60. Why Do Non-Selected Actions Change?
 
 In gradient bandit algorithms, even the actions that were not selected are updated.
 
@@ -2057,7 +2057,7 @@ So the non-selected actions move in the opposite direction.
 
 ---
 
-## 64. Meaning of \(1 - \pi_t(A_t)\)
+## 61. Meaning of \(1 - \pi_t(A_t)\)
 
 For the selected action, the update contains:
 
@@ -2101,7 +2101,7 @@ If a surprising action gives a good reward, increase its preference strongly.
 
 ---
 
-## 65. Meaning of \(\pi_t(a)\) for Non-Selected Actions
+## 62. Meaning of \(\pi_t(a)\) for Non-Selected Actions
 
 For non-selected actions, the update uses:
 
@@ -2117,7 +2117,7 @@ This helps redistribute probability smoothly across all actions.
 
 ---
 
-## 66. Difference Between UCB and Gradient Bandit Methods
+## 63. Difference Between UCB and Gradient Bandit Methods
 
 UCB uses action-value estimates:
 
@@ -2159,7 +2159,7 @@ How should I change my probability of selecting each action based on whether the
 
 ---
 
-## 67. Summary in My Own Words
+## 64. Summary in My Own Words
 
 Upper-Confidence-Bound action selection improves exploration by choosing actions that either have high estimated value or high uncertainty.
 
