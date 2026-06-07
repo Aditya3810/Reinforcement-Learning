@@ -9,3 +9,7 @@ The objective here is to maximize the rewards over some time period.
 
 
 ![alt text](image-1.png)
+
+## Action-Value methods.
+
+These are methods used to calculate the estimates Q<sub>a</sub>(t) for our action at time t
