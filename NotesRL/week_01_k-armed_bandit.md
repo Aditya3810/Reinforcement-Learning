@@ -1391,3 +1391,820 @@ In short:
 Constant step size helps the agent adapt to change.
 
 Optimistic initial values help the agent explore early.
+
+
+## 42. Upper-Confidence-Bound Action Selection
+
+Upper-Confidence-Bound action selection is another way to handle the exploration problem.
+
+Earlier, we saw epsilon-greedy action selection.
+
+In epsilon-greedy action selection, the agent usually chooses the best-looking action, but sometimes chooses a random action.
+
+The problem is that random exploration may waste time.
+
+For example, if some actions already look very bad, epsilon-greedy may still choose them randomly during exploration.
+
+Upper-Confidence-Bound action selection tries to explore more intelligently.
+
+Instead of asking only:
+
+Which action currently looks best?
+
+UCB asks:
+
+Which action has the best combination of high estimated value and high uncertainty?
+
+---
+
+## 43. Main Idea Behind UCB
+
+UCB chooses actions based on two things:
+
+1. how good the action currently looks
+2. how uncertain the agent is about that action
+
+So UCB does not only use the estimated action value:
+
+$$
+Q_t(a)
+$$
+
+It also adds an uncertainty bonus.
+
+The agent then chooses the action with the highest combined score.
+
+In simple words:
+
+The agent chooses actions that either look good already, or have not been explored enough and might still turn out to be good.
+
+---
+
+## 44. UCB Formula
+
+The UCB action selection formula is:
+
+$$
+A_t = \arg\max_a \left[ Q_t(a) + c \sqrt{\frac{\ln t}{N_t(a)}} \right]
+$$
+
+This means:
+
+At time \(t\), choose the action \(a\) that maximizes:
+
+$$
+Q_t(a) + c \sqrt{\frac{\ln t}{N_t(a)}}
+$$
+
+The first part is:
+
+$$
+Q_t(a)
+$$
+
+This is the current estimated value of action \(a\).
+
+The second part is:
+
+$$
+c \sqrt{\frac{\ln t}{N_t(a)}}
+$$
+
+This is the uncertainty bonus.
+
+So the full score is:
+
+$$
+\text{UCB score} = \text{estimated value} + \text{uncertainty bonus}
+$$
+
+---
+
+## 45. Meaning of \(Q_t(a)\)
+
+The term:
+
+$$
+Q_t(a)
+$$
+
+is the agent's current estimate of the value of action \(a\).
+
+It tells us how good the action looks based on previous rewards.
+
+If \(Q_t(a)\) is high, the action currently looks promising.
+
+This part encourages exploitation.
+
+Exploitation means choosing actions that already seem good.
+
+---
+
+## 46. Meaning of the Uncertainty Bonus
+
+The term:
+
+$$
+c \sqrt{\frac{\ln t}{N_t(a)}}
+$$
+
+is the uncertainty bonus.
+
+This part encourages exploration.
+
+It gives extra value to actions that have not been selected very often.
+
+If an action has been selected only a few times, then the agent is still uncertain about its true value.
+
+So UCB gives that action a larger bonus.
+
+If an action has been selected many times, then the agent is more confident about its value.
+
+So UCB gives that action a smaller bonus.
+
+---
+
+## 47. Meaning of \(t\)
+
+The term:
+
+$$
+t
+$$
+
+is the current time step.
+
+As the experiment continues:
+
+$$
+t = 1, 2, 3, 4, \dots
+$$
+
+So \(t\) increases at every time step.
+
+The term:
+
+$$
+\ln t
+$$
+
+also increases over time, but slowly.
+
+This means that as time passes, the algorithm maintains some pressure to explore.
+
+---
+
+## 48. Meaning of \(N_t(a)\)
+
+The term:
+
+$$
+N_t(a)
+$$
+
+means the number of times action \(a\) has been selected before time \(t\).
+
+If action \(a\) has been selected many times, then:
+
+$$
+N_t(a)
+$$
+
+is large.
+
+So the uncertainty bonus becomes smaller.
+
+If action \(a\) has been selected only a few times, then:
+
+$$
+N_t(a)
+$$
+
+is small.
+
+So the uncertainty bonus becomes larger.
+
+This encourages the agent to try actions it has not explored much.
+
+---
+
+## 49. Meaning of \(c\)
+
+The term:
+
+$$
+c
+$$
+
+controls the amount of exploration.
+
+It is called the confidence level or exploration parameter.
+
+Usually:
+
+$$
+c > 0
+$$
+
+If \(c\) is large, the uncertainty bonus becomes larger.
+
+So the agent explores more.
+
+If \(c\) is small, the uncertainty bonus becomes smaller.
+
+So the agent behaves more greedily.
+
+---
+
+## 50. Simple UCB Example
+
+Suppose there are 3 actions at time:
+
+$$
+t = 100
+$$
+
+Let:
+
+$$
+c = 2
+$$
+
+Current estimates:
+
+| Action | \(Q_t(a)\) | \(N_t(a)\) |
+|---|---:|---:|
+| A | 5.0 | 50 |
+| B | 4.8 | 5 |
+| C | 3.0 | 45 |
+
+Action A has the highest estimated value:
+
+$$
+Q_t(A) = 5.0
+$$
+
+So greedy action selection would choose action A.
+
+But UCB also considers uncertainty.
+
+Action B has been selected only 5 times.
+
+So the agent is still uncertain about action B.
+
+Because \(N_t(B)\) is small, action B gets a larger uncertainty bonus.
+
+So even though action B has a slightly lower estimate than action A, UCB may still choose action B.
+
+This is because action B still has potential to be optimal.
+
+---
+
+## 51. What Happens When an Action Is Selected?
+
+Suppose action \(a\) is selected.
+
+Then:
+
+$$
+N_t(a)
+$$
+
+increases.
+
+Since \(N_t(a)\) appears in the denominator:
+
+$$
+\sqrt{\frac{\ln t}{N_t(a)}}
+$$
+
+the uncertainty bonus decreases.
+
+So the more often an action is selected, the less uncertain the agent becomes about that action.
+
+In simple words:
+
+The more I try an action, the less curious I am about it.
+
+---
+
+## 52. What Happens When an Action Is Not Selected?
+
+If an action is not selected, then \(N_t(a)\) does not increase.
+
+But time still increases.
+
+So:
+
+$$
+\ln t
+$$
+
+increases.
+
+This means the uncertainty bonus for ignored actions can slowly grow over time.
+
+So if an action has not been selected for a long time, it can become attractive again.
+
+In simple words:
+
+If I have ignored an action for a long time, maybe I should check it again.
+
+---
+
+## 53. UCB Intuition
+
+UCB is like saying:
+
+I will choose the action that either looks good already, or has not been tested enough and might still turn out to be good.
+
+So UCB does not explore randomly like epsilon-greedy.
+
+Instead, it explores where uncertainty is high.
+
+This makes exploration more directed.
+
+---
+
+## 54. Gradient Bandit Algorithms
+
+Gradient bandit algorithms are another way to select actions.
+
+Until now, we estimated action values:
+
+$$
+Q_t(a)
+$$
+
+and used those estimates to select actions.
+
+Gradient bandit algorithms do something different.
+
+They do not directly estimate action values.
+
+Instead, they learn a numerical preference for each action.
+
+This preference is written as:
+
+$$
+H_t(a)
+$$
+
+---
+
+## 55. What Is \(H_t(a)\)?
+
+The term:
+
+$$
+H_t(a)
+$$
+
+means the preference for action \(a\) at time \(t\).
+
+A higher preference means the action is more likely to be selected.
+
+A lower preference means the action is less likely to be selected.
+
+Important distinction:
+
+$$
+Q_t(a)
+$$
+
+means estimated reward value.
+
+But:
+
+$$
+H_t(a)
+$$
+
+means preference or tendency to choose that action.
+
+So \(H_t(a)\) is not the same as \(Q_t(a)\).
+
+---
+
+## 56. Action Selection Using Softmax
+
+Gradient bandit algorithms convert action preferences into probabilities.
+
+This is done using softmax.
+
+The probability of selecting action \(a\) is:
+
+$$
+\pi_t(a) =
+\frac{e^{H_t(a)}}{\sum_b e^{H_t(b)}}
+$$
+
+This means each action gets a probability.
+
+The higher the preference \(H_t(a)\), the higher the probability of choosing that action.
+
+So the agent does not always choose the maximum preference action.
+
+Instead, it samples actions according to probabilities.
+
+This naturally allows exploration.
+
+---
+
+## 57. Simple Softmax Example
+
+Suppose there are 3 actions:
+
+| Action | Preference \(H_t(a)\) |
+|---|---:|
+| A | 2.0 |
+| B | 1.0 |
+| C | 0.0 |
+
+Action A has the highest preference.
+
+So action A will have the highest probability of being selected.
+
+But actions B and C can still be selected sometimes.
+
+This means softmax does not completely ignore lower-preference actions.
+
+So it gives a natural balance between exploration and exploitation.
+
+---
+
+## 58. Updating Action Preferences
+
+After selecting action \(A_t\) and receiving reward \(R_t\), the preference of the selected action is updated.
+
+For the selected action:
+
+$$
+H_{t+1}(A_t) = H_t(A_t) + \alpha(R_t - \bar{R}_t)(1 - \pi_t(A_t))
+$$
+
+For all actions that were not selected:
+
+$$
+H_{t+1}(a) = H_t(a) - \alpha(R_t - \bar{R}_t)\pi_t(a)
+$$
+
+where:
+
+$$
+a \neq A_t
+$$
+
+Note:
+
+The step size \(\alpha\) is usually positive:
+
+$$
+\alpha > 0
+$$
+
+The non-selected action update usually has a minus sign.
+
+---
+
+## 59. Meaning of \(\bar{R}_t\)
+
+The term:
+
+$$
+\bar{R}_t
+$$
+
+is the average reward received so far.
+
+It is used as a baseline.
+
+The term:
+
+$$
+R_t - \bar{R}_t
+$$
+
+means:
+
+Was the reward better or worse than usual?
+
+If:
+
+$$
+R_t > \bar{R}_t
+$$
+
+then the reward was better than average.
+
+If:
+
+$$
+R_t < \bar{R}_t
+$$
+
+then the reward was worse than average.
+
+So the agent does not only ask:
+
+Did I get a reward?
+
+It asks:
+
+Was this reward better than what I usually get?
+
+---
+
+## 60. Why Use a Baseline?
+
+Suppose the agent receives reward:
+
+$$
+R_t = 5
+$$
+
+Is 5 good?
+
+It depends on the average reward.
+
+If the average reward is:
+
+$$
+\bar{R}_t = 2
+$$
+
+then:
+
+$$
+R_t - \bar{R}_t = 5 - 2 = 3
+$$
+
+So the reward is better than usual.
+
+The selected action should become more preferred.
+
+But if the average reward is:
+
+$$
+\bar{R}_t = 8
+$$
+
+then:
+
+$$
+R_t - \bar{R}_t = 5 - 8 = -3
+$$
+
+So the reward is worse than usual.
+
+The selected action should become less preferred.
+
+This is why the baseline matters.
+
+---
+
+## 61. Example: Reward Above Baseline
+
+Suppose action A was selected.
+
+Reward:
+
+$$
+R_t = 10
+$$
+
+Average reward so far:
+
+$$
+\bar{R}_t = 6
+$$
+
+So:
+
+$$
+R_t - \bar{R}_t = 4
+$$
+
+The reward is better than usual.
+
+So the preference for action A increases.
+
+$$
+H(A) \uparrow
+$$
+
+The probabilities of the non-selected actions decrease slightly.
+
+In simple words:
+
+That action gave me a better-than-usual reward, so I should choose it more often.
+
+---
+
+## 62. Example: Reward Below Baseline
+
+Suppose action A was selected.
+
+Reward:
+
+$$
+R_t = 3
+$$
+
+Average reward so far:
+
+$$
+\bar{R}_t = 6
+$$
+
+So:
+
+$$
+R_t - \bar{R}_t = -3
+$$
+
+The reward is worse than usual.
+
+So the preference for action A decreases.
+
+$$
+H(A) \downarrow
+$$
+
+The probabilities of the non-selected actions increase slightly.
+
+In simple words:
+
+That action gave me a worse-than-usual reward, so I should choose it less often.
+
+---
+
+## 63. Why Do Non-Selected Actions Change?
+
+In gradient bandit algorithms, even the actions that were not selected are updated.
+
+This can feel strange at first.
+
+But the reason is that action probabilities must balance.
+
+The softmax probabilities must sum to 1.
+
+If the probability of one action increases, the probabilities of the other actions must decrease.
+
+If the probability of the selected action decreases, the probabilities of the other actions can increase.
+
+So the non-selected actions move in the opposite direction.
+
+---
+
+## 64. Meaning of \(1 - \pi_t(A_t)\)
+
+For the selected action, the update contains:
+
+$$
+1 - \pi_t(A_t)
+$$
+
+This controls how much the selected action's preference changes.
+
+If the selected action already had a very high probability, then:
+
+$$
+\pi_t(A_t)
+$$
+
+is close to 1.
+
+So:
+
+$$
+1 - \pi_t(A_t)
+$$
+
+is small.
+
+This means the update is smaller.
+
+If the selected action had a low probability but gave a good reward, then:
+
+$$
+1 - \pi_t(A_t)
+$$
+
+is large.
+
+This means the update is larger.
+
+In simple words:
+
+If a surprising action gives a good reward, increase its preference strongly.
+
+---
+
+## 65. Meaning of \(\pi_t(a)\) for Non-Selected Actions
+
+For non-selected actions, the update uses:
+
+$$
+\pi_t(a)
+$$
+
+Actions that already had high probability are adjusted more.
+
+Actions that had low probability are adjusted less.
+
+This helps redistribute probability smoothly across all actions.
+
+---
+
+## 66. Difference Between UCB and Gradient Bandit Methods
+
+UCB uses action-value estimates:
+
+$$
+Q_t(a)
+$$
+
+and an uncertainty bonus:
+
+$$
+c \sqrt{\frac{\ln t}{N_t(a)}}
+$$
+
+It chooses the action with the highest upper-confidence score.
+
+So UCB asks:
+
+Which action looks best, considering both value and uncertainty?
+
+Gradient bandit algorithms do not directly estimate action values.
+
+They learn preferences:
+
+$$
+H_t(a)
+$$
+
+Then these preferences are converted into probabilities:
+
+$$
+\pi_t(a)
+$$
+
+using softmax.
+
+So gradient bandit algorithms ask:
+
+How should I change my probability of selecting each action based on whether the reward was better or worse than usual?
+
+---
+
+## 67. Summary in My Own Words
+
+Upper-Confidence-Bound action selection improves exploration by choosing actions that either have high estimated value or high uncertainty.
+
+Its formula is:
+
+$$
+A_t = \arg\max_a \left[ Q_t(a) + c \sqrt{\frac{\ln t}{N_t(a)}} \right]
+$$
+
+The first part:
+
+$$
+Q_t(a)
+$$
+
+encourages exploitation.
+
+The second part:
+
+$$
+c \sqrt{\frac{\ln t}{N_t(a)}}
+$$
+
+encourages exploration.
+
+Gradient bandit algorithms use preferences instead of value estimates.
+
+Each action has a preference:
+
+$$
+H_t(a)
+$$
+
+These preferences are converted into action probabilities using softmax:
+
+$$
+\pi_t(a)
+$$
+
+After receiving a reward, the selected action's preference is increased if the reward is above the average baseline.
+
+The selected action's preference is decreased if the reward is below the average baseline.
+
+In short:
+
+UCB explores based on uncertainty.
+
+Gradient bandit algorithms learn which actions should become more or less probable based on reward compared to a baseline.
