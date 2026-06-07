@@ -6,3 +6,6 @@ chosen from a stationary distribution that depends on the action chosen.
 
 ## Objective 
 The objective here is to maximize the rewards over some time period.
+
+
+![alt text](image-1.png)
