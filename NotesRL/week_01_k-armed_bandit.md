@@ -30,3 +30,57 @@ Q_t(a) =
 \text{number of times action } a \text{ was selected before time } t
 }
 $$
+
+## Indicator Function Example
+
+The indicator function is written as:
+
+\[
+\mathbf{1}_{A_i = a}
+\]
+
+It equals:
+
+\[
+\mathbf{1}_{A_i = a} =
+\begin{cases}
+1, & \text{if } A_i = a \\
+0, & \text{if } A_i \neq a
+\end{cases}
+\]
+
+So it filters only the rewards from the action we care about.
+
+For example, for action \(A\):
+
+| Time \(i\) | Action \(A_i\) | Reward \(R_i\) | \(\mathbf{1}_{A_i = A}\) | \(R_i \cdot \mathbf{1}_{A_i = A}\) |
+|---:|:---:|---:|---:|---:|
+| 1 | A | 2 | 1 | 2 |
+| 2 | B | 5 | 0 | 0 |
+| 3 | A | 4 | 1 | 4 |
+| 4 | C | 1 | 0 | 0 |
+| 5 | A | 3 | 1 | 3 |
+
+The numerator is the total reward received from action \(A\):
+
+\[
+2 + 0 + 4 + 0 + 3 = 9
+\]
+
+The denominator is the number of times action \(A\) was selected:
+
+\[
+1 + 0 + 1 + 0 + 1 = 3
+\]
+
+Therefore:
+
+\[
+Q_6(A) = \frac{9}{3} = 3
+\]
+
+So the estimated value of action \(A\) before time step 6 is:
+
+\[
+Q_6(A) = 3
+\]
