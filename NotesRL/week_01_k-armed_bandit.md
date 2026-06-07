@@ -852,10 +852,542 @@ This makes sense because after many observations, one new reward should not dras
 
 ---
 
-## 24. Code Version of the Incremental Update
+## 24. Tracking a Non-Stationary Problem
 
-In Python, the incremental update looks like this:
+A non-stationary problem means that the reward values change over time.
 
-```python
-N[action] += 1
-Q[action] = Q[action] + (1 / N[action]) * (reward - Q[action])
+Earlier, we assumed that the true value of an action stays fixed.
+
+That is called a stationary problem.
+
+In a stationary bandit problem, the true action values do not change.
+
+Example:
+
+| Action | True value at start | True value later |
+|---|---:|---:|
+| A | 2.0 | 2.0 |
+| B | 5.0 | 5.0 |
+| C | 1.0 | 1.0 |
+
+The best action remains the same over time.
+
+But in a non-stationary bandit problem, the true values can change.
+
+Example:
+
+| Action | True value at start | True value later |
+|---|---:|---:|
+| A | 2.0 | 6.0 |
+| B | 5.0 | 1.0 |
+| C | 1.0 | 3.0 |
+
+At the beginning, action B is the best action.
+
+Later, action A becomes the best action.
+
+So the agent must keep adapting.
+
+---
+
+## 25. Why the Sample-Average Method Becomes a Problem
+
+Earlier, we used the sample-average update:
+
+$$
+Q_{n+1} = Q_n + \frac{1}{n}[R_n - Q_n]
+$$
+
+Here, the step size is:
+
+$$
+\frac{1}{n}
+$$
+
+As \(n\) gets larger, this value becomes very small.
+
+For example:
+
+$$
+n = 1000
+$$
+
+$$
+\frac{1}{n} = 0.001
+$$
+
+So new rewards barely change the estimate.
+
+This is useful in a stationary problem because the true action value is fixed.
+
+But in a non-stationary problem, this becomes a problem.
+
+Why?
+
+Because old rewards may no longer be useful.
+
+If an action used to be good but is now bad, the old rewards will keep influencing the estimate too much.
+
+---
+
+## 26. Example: Why Old Rewards Can Be Misleading
+
+Suppose action A used to give rewards around 10.
+
+So after many trials, the agent estimates:
+
+$$
+Q(A) = 10
+$$
+
+But now the environment changes.
+
+Action A starts giving rewards around 2.
+
+The agent receives:
+
+$$
+R = 2
+$$
+
+If action A has already been selected 1000 times, then:
+
+$$
+Q_{n+1} = 10 + \frac{1}{1000}[2 - 10]
+$$
+
+$$
+Q_{n+1} = 10 + 0.001[-8]
+$$
+
+$$
+Q_{n+1} = 10 - 0.008
+$$
+
+$$
+Q_{n+1} = 9.992
+$$
+
+The estimate barely changes.
+
+But the true value has changed from 10 to 2.
+
+So the agent adapts too slowly.
+
+---
+
+## 27. Constant Step-Size Method
+
+To solve this, we replace:
+
+$$
+\frac{1}{n}
+$$
+
+with a constant value:
+
+$$
+\alpha
+$$
+
+So the update becomes:
+
+$$
+Q_{n+1} = Q_n + \alpha[R_n - Q_n]
+$$
+
+Here, \(\alpha\) is called the step size or learning rate.
+
+For example:
+
+$$
+\alpha = 0.1
+$$
+
+This means that each new reward has a fixed influence on the updated estimate.
+
+The update still follows the same general idea:
+
+$$
+\text{New estimate} = \text{Old estimate} + \text{Step size} \times \text{Prediction error}
+$$
+
+But now the step size does not shrink over time.
+
+So the agent can keep adapting to new rewards.
+
+---
+
+## 28. Example: Constant Step Size
+
+Suppose:
+
+$$
+Q_n = 10
+$$
+
+and the new reward is:
+
+$$
+R_n = 2
+$$
+
+Use:
+
+$$
+\alpha = 0.1
+$$
+
+Then:
+
+$$
+Q_{n+1} = 10 + 0.1[2 - 10]
+$$
+
+$$
+Q_{n+1} = 10 + 0.1[-8]
+$$
+
+$$
+Q_{n+1} = 10 - 0.8
+$$
+
+$$
+Q_{n+1} = 9.2
+$$
+
+Now the estimate changes from 10 to 9.2.
+
+This is much faster than 9.992 from the sample-average method.
+
+If the agent keeps receiving low rewards, the estimate will keep moving down.
+
+So a constant step size helps the agent track changes in the environment.
+
+---
+
+## 29. Weighted Average Idea
+
+With a constant step size, the estimate becomes a weighted average of past rewards.
+
+The expanded form is:
+
+$$
+Q_{n+1} = (1 - \alpha)^n Q_1 + \sum_{i=1}^{n} \alpha(1-\alpha)^{n-i}R_i
+$$
+
+This looks complicated, but the idea is simple:
+
+The estimate depends on:
+
+- the initial estimate \(Q_1\)
+- all previous rewards
+- how recent those rewards are
+
+Recent rewards get more weight.
+
+Older rewards get less weight.
+
+That is why this method is useful for non-stationary problems.
+
+---
+
+## 30. Meaning of the Weight
+
+The weight given to reward \(R_i\) is:
+
+$$
+\alpha(1-\alpha)^{n-i}
+$$
+
+Here:
+
+$$
+n-i
+$$
+
+means how long ago the reward happened.
+
+If \(R_i\) happened recently, then \(n-i\) is small.
+
+So the weight is larger.
+
+If \(R_i\) happened long ago, then \(n-i\) is large.
+
+So the weight becomes smaller.
+
+Because:
+
+$$
+0 < 1-\alpha < 1
+$$
+
+raising it to larger powers makes it smaller.
+
+---
+
+## 31. Example with \(\alpha = 0.1\)
+
+Let:
+
+$$
+\alpha = 0.1
+$$
+
+Then:
+
+$$
+1-\alpha = 0.9
+$$
+
+The most recent reward gets weight:
+
+$$
+0.1
+$$
+
+The reward before that gets weight:
+
+$$
+0.1 \times 0.9 = 0.09
+$$
+
+The reward before that gets weight:
+
+$$
+0.1 \times 0.9^2 = 0.081
+$$
+
+The reward before that gets weight:
+
+$$
+0.1 \times 0.9^3 = 0.0729
+$$
+
+So the weights look like this:
+
+| Reward | Weight |
+|---|---:|
+| Most recent reward | 0.1000 |
+| 1 step older | 0.0900 |
+| 2 steps older | 0.0810 |
+| 3 steps older | 0.0729 |
+| 4 steps older | 0.0656 |
+
+Older rewards are not ignored completely, but their influence fades.
+
+This is called an exponential recency-weighted average.
+
+In simple words:
+
+The agent remembers the past, but it trusts recent experience more.
+
+---
+
+## 32. Why the Weights Sum to 1
+
+The estimate is still an average.
+
+But it is not a normal average where every reward has equal weight.
+
+In a normal sample average:
+
+$$
+Q = \frac{R_1 + R_2 + R_3 + R_4}{4}
+$$
+
+Each reward has equal weight:
+
+$$
+0.25
+$$
+
+But in the constant step-size method, recent rewards get larger weights and older rewards get smaller weights.
+
+So the estimate is biased toward recent experience.
+
+This is exactly what we want when the environment changes.
+
+---
+
+## 33. Optimistic Initial Values
+
+Optimistic initial values are a way to encourage exploration.
+
+Usually, we initialize action-value estimates like this:
+
+$$
+Q_1(a) = 0
+$$
+
+for all actions.
+
+But in optimistic initial values, we start with unrealistically high estimates.
+
+For example:
+
+$$
+Q_1(a) = 5
+$$
+
+for all actions.
+
+This means the agent initially believes every action is very good.
+
+---
+
+## 34. Why Optimistic Initial Values Encourage Exploration
+
+Suppose we have 4 actions.
+
+Initial estimates:
+
+| Action | Initial estimate |
+|---|---:|
+| A | 5 |
+| B | 5 |
+| C | 5 |
+| D | 5 |
+
+Now the agent tries action A and gets reward:
+
+$$
+R = 1
+$$
+
+The estimate for A decreases.
+
+For example:
+
+| Action | Estimate |
+|---|---:|
+| A | 3 |
+| B | 5 |
+| C | 5 |
+| D | 5 |
+
+Now the greedy agent chooses one of B, C, or D because they still look better.
+
+Then it tries B.
+
+If B gives a low reward, B also decreases.
+
+Eventually, the agent is pushed to try all actions because unexplored actions still have high optimistic values.
+
+So even a greedy agent is encouraged to explore.
+
+---
+
+## 35. Example of Optimistic Initial Values
+
+Suppose the true values are:
+
+| Action | True value |
+|---|---:|
+| A | 1 |
+| B | 2 |
+| C | 4 |
+
+But the agent starts with optimistic estimates:
+
+| Action | Initial estimate |
+|---|---:|
+| A | 10 |
+| B | 10 |
+| C | 10 |
+
+The agent chooses A first.
+
+Suppose the reward is:
+
+$$
+R = 1
+$$
+
+A's estimate drops.
+
+Now B and C still look better because their estimates are still high.
+
+So the agent tries B or C next.
+
+This forces exploration.
+
+After enough experience, the estimates move closer to the true values:
+
+| Action | Estimated value |
+|---|---:|
+| A | 1 |
+| B | 2 |
+| C | 4 |
+
+Then the agent mostly chooses C.
+
+---
+
+## 36. Why Is It Called Optimistic?
+
+It is called optimistic because the agent starts with overly positive beliefs.
+
+It assumes every action is better than it probably is.
+
+As the agent samples actions, reality corrects those estimates.
+
+This is useful because unexplored actions remain attractive until they are tried.
+
+---
+
+## 37. Limitation of Optimistic Initial Values
+
+Optimistic initial values are useful mainly in stationary problems.
+
+In a stationary problem, the true values do not change.
+
+Once the agent has explored and corrected its estimates, it can exploit the best action.
+
+But in a non-stationary problem, optimistic initial values only encourage exploration at the beginning.
+
+Later, if the environment changes, the initial optimism is gone.
+
+So it does not keep encouraging exploration forever.
+
+For non-stationary problems, methods like epsilon-greedy action selection or constant step-size updates are usually more useful.
+
+---
+
+## 38. Summary in My Own Words
+
+A non-stationary problem means that the reward values change over time.
+
+In this case, old rewards may become less useful.
+
+The sample-average update:
+
+$$
+Q_{n+1} = Q_n + \frac{1}{n}[R_n - Q_n]
+$$
+
+learns too slowly after many trials because:
+
+$$
+\frac{1}{n}
+$$
+
+becomes very small.
+
+So we use a constant step size:
+
+$$
+Q_{n+1} = Q_n + \alpha[R_n - Q_n]
+$$
+
+This gives more weight to recent rewards and less weight to older rewards.
+
+Optimistic initial values are a different way to encourage exploration.
+
+They start all action-value estimates at high values, making unexplored actions look attractive.
+
+In short:
+
+Constant step size helps the agent adapt to change.
+
+Optimistic initial values help the agent explore early.
