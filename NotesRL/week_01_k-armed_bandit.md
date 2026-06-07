@@ -19,3 +19,10 @@ $$
 Q_t(a) = \frac{\sum_{i=1}^{t-1} R_i \cdot \mathbb{1}_{A_i = a}}
 {\sum_{i=1}^{t-1} \mathbb{1}_{A_i = a}}
 $$
+
+which means:
+
+$$
+Q_t(a) = \frac{total reward received from action a before time t​}
+{total reward received from action a before time t}
+$$
