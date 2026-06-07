@@ -168,3 +168,183 @@ So the estimated value of action $A$ is:
 $$
 Q_t(A) = \frac{2 + 4 + 3}{3} = 3
 $$
+
+# Greedy and Epsilon-Greedy Action Selection
+
+## Argmax in action selection
+
+Yes — but with one small correction:
+
+$$
+\arg\max_a Q_t(a)
+$$
+
+does **not** return the maximum value itself.
+
+It returns the **action** $a$ whose estimated value $Q_t(a)$ is the highest.
+
+---
+
+## Example
+
+| Action $a$ | Estimated value $Q_t(a)$ |
+|---|---:|
+| Action 1 | 2.1 |
+| Action 2 | 4.7 |
+| Action 3 | 1.5 |
+
+Here:
+
+$$
+\max_a Q_t(a) = 4.7
+$$
+
+That is the **maximum estimated value**.
+
+But:
+
+$$
+\arg\max_a Q_t(a) = \text{Action 2}
+$$
+
+That is the **action that gives the maximum value**.
+
+So this:
+
+$$
+A_t = \arg\max_a Q_t(a)
+$$
+
+means:
+
+> At time $t$, choose the action whose current estimated value is highest.
+
+---
+
+# 9. Problem With Pure Greedy Selection
+
+Greedy action selection always chooses the action that currently looks best.
+
+This can be a problem early in learning.
+
+For example, suppose the agent tries Action 1 once and gets a high reward by chance.
+
+It may then keep choosing Action 1 forever, even if another action is actually better.
+
+So pure greedy selection can get stuck because it does not explore enough.
+
+This is called the **exploration-exploitation tradeoff**.
+
+---
+
+# 10. Epsilon-Greedy Action Selection
+
+An alternative is **epsilon-greedy action selection**.
+
+In epsilon-greedy selection, the agent usually behaves greedily, but sometimes explores.
+
+With probability:
+
+$$
+1 - \epsilon
+$$
+
+the agent chooses the greedy action:
+
+$$
+A_t = \arg\max_a Q_t(a)
+$$
+
+With probability:
+
+$$
+\epsilon
+$$
+
+the agent chooses a random action.
+
+---
+
+## In simple words
+
+> Most of the time, choose the action that currently looks best.  
+> Sometimes, choose randomly to explore other possibilities.
+
+---
+
+## Example
+
+If:
+
+$$
+\epsilon = 0.1
+$$
+
+then:
+
+- 90% of the time, the agent exploits the best-known action.
+- 10% of the time, the agent explores randomly.
+
+So if the current estimated values are:
+
+| Action $a$ | Estimated value $Q_t(a)$ |
+|---|---:|
+| Action 1 | 2.1 |
+| Action 2 | 4.7 |
+| Action 3 | 1.5 |
+
+The greedy action is:
+
+$$
+\arg\max_a Q_t(a) = \text{Action 2}
+$$
+
+With epsilon-greedy action selection:
+
+- Most of the time, the agent chooses Action 2.
+- Sometimes, it randomly chooses Action 1, Action 2, or Action 3.
+
+---
+
+## Why exploration matters
+
+Exploration is important because the agent does not know the true value of each action at the beginning.
+
+An action that looks bad early may actually be good.
+
+An action that looks good early may only look good because of lucky rewards.
+
+So epsilon-greedy selection prevents the agent from blindly trusting early estimates.
+
+---
+
+## Summary
+
+Pure greedy selection:
+
+$$
+A_t = \arg\max_a Q_t(a)
+$$
+
+always chooses the action with the highest estimated value.
+
+Epsilon-greedy selection:
+
+$$
+A_t =
+\begin{cases}
+\arg\max_a Q_t(a), & \text{with probability } 1 - \epsilon \\
+\text{random action}, & \text{with probability } \epsilon
+\end{cases}
+$$
+
+This balances two things:
+
+| Term | Meaning |
+|---|---|
+| Exploitation | Choosing the best-known action |
+| Exploration | Trying other actions to learn more |
+
+So epsilon-greedy means:
+
+> Exploit most of the time, but explore sometimes.
